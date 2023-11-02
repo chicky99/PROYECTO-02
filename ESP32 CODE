@@ -1,0 +1,73 @@
+//*****************************************************************************
+// Universidad del Valle de Guatemala
+// BE3015 - Electrónica Digital 2
+// Jose Luis Monterroso - 20142
+// Proyecto 2 / Sensor 
+//*****************************************************************************
+//*****************************************************************************
+// Librerías
+//*****************************************************************************
+#include <Arduino.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+//*****************************************************************************
+// Definición de pines
+//*****************************************************************************
+#define sensor 21
+
+//*****************************************************************************
+// Prototipos de función
+//*****************************************************************************
+void stemp();
+
+//*****************************************************************************
+// Variables Globales
+//*****************************************************************************
+
+OneWire oneWire(sensor);
+DallasTemperature sensors(&oneWire);
+const int oneWireBus = 5;
+
+float celsius;
+float farenjai;
+
+//*****************************************************************************
+// ISR-Interrupciones
+//*****************************************************************************
+
+
+//*****************************************************************************
+// Funciones Principales
+//*****************************************************************************
+void setup(){
+  Serial.begin(115200);
+  Serial2.begin(115200);
+  sensors.begin();
+}
+
+void loop(){
+  stemp();
+  delay(500);
+}
+//*****************************************************************************
+// Funciones Secundarias
+//*****************************************************************************
+
+void stemp(){
+  if (Serial2.available() > 0) {
+    char request = Serial2.read();
+    if (request == 'S') {
+      // Realizar lectura del sensor DS18B20
+      sensors.requestTemperatures();
+      float celsius = sensors.getTempCByIndex(0);
+
+      // Enviar la temperatura a la Tiva C
+      Serial2.print("Temp:");
+      Serial2.println(celsius);
+
+      // Enviar la temperatura a la computadora
+      Serial.print("Temp:");
+      Serial.println(celsius);
+    }
+  }
+}
